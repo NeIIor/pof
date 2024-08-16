@@ -6,9 +6,9 @@ int main() {
     scanf("%lf %lf %lf", &a, &b, &c);
     d = pow(b, 2) - 4 * a * c;
     if (d < 0) {
-        printf("No roots\n");
+        printf("No root\n");
     }
-    else if (d < 0.000000000000001) {
+    else if (d < 0.000000000000001 && d > 0) {
         printf("One root: %lf\n", -b/(2 * a));
     }
     else {

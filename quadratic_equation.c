@@ -15,4 +15,5 @@ int main() {
         printf("Two roots: %lf %lf\n", (- b - sqrt(d))/(2 * a), (- b + sqrt(d))/(2 * a));
     }
     return 0;
+
 }

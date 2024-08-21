@@ -1,71 +1,82 @@
 #include <stdio.h>
 #include <math.h>
 
-int SolveSquare(double coeff_a, double coeff_b, double coeff_c, double* x1, double* x2);
+int solve_square(double coeff_a, double coeff_b, double coeff_c, double* root1, double* root2);
 void input(double* a, double* b, double* c);
-void Output(int nRoots, double x1, double x2);
-bool RunTest(int Test, double a, double b, double c, double x1pending, double x2pending, int nRootsPending);
+void output(int num_of_roots, double root1, double root2);
+bool run_test(int test, double a, double b, double c, double root1_pending, double root2_pending, int num_of_rootsPending);
+bool compare(double num1, double num2);
 
-enum NumRoots {
-    NoRoots = 0,
-    NoRoot = 0,
-    OneRoot = 1,
-    TwoRoots = 2,
-    InfRoots = -1
+enum num_roots {
+    no_roots = 0,
+    no_root = 0,
+    one_root = 1,
+    two_roots = 2,
+    inf_roots = -1
 };
 
 
 int main() {
-    double coeff_a = NAN, coeff_b = NAN, coeff_c = NAN, x1 = NAN, x2 = NAN;
+    double coeff_a = NAN, coeff_b = NAN, coeff_c = NAN, root1 = NAN, root2 = NAN;
     input(&coeff_a, &coeff_b, &coeff_c);
-    int nRoots = SolveSquare(coeff_a, coeff_b, coeff_c, &x1, &x2);
+    int num_of_roots = solve_square(coeff_a, coeff_b, coeff_c, &root1, &root2);
 
-    RunTest(1, 0, 0, 0, InfRoots, InfRoots, InfRoots);
-    RunTest(2, 1, 2, 1, -1, NoRoot, OneRoot);
-    RunTest(3, 2, 4, 2, -1, NoRoot, OneRoot);
-    RunTest(4, 0, 0, 1, NoRoot, NoRoot, NoRoots);
-    RunTest(5, 1, 0, 0, 0, NoRoot, OneRoot);
-    RunTest(6, 0, 1, 0, 0, NoRoot, OneRoot);
-    RunTest(7, 0, 1, 1, -1, NoRoot, OneRoot);
-    RunTest(8, 1e100, 1, 1, NoRoot, NoRoot, NoRoots);
-    RunTest(9, 0, 1e-40, 1e40, 1e80, NoRoot, OneRoot);
+    run_test(1, 0, 0, 0, inf_roots, inf_roots, inf_roots);
+    run_test(2, 1, 2, 1, -1, no_root, one_root);
+    run_test(3, 2, 4, 2, -1, no_root, one_root);
+    run_test(4, 0, 0, 1, no_root, no_root, no_roots);
+    run_test(5, 1, 0, 0, 0, no_root, one_root);
+    run_test(6, 0, 1, 0, 0, no_root, one_root);
+    run_test(7, 0, 1, 1, -1, no_root, one_root);
+    run_test(8, 1e100, 1, 1, no_root, no_root, no_roots);
+    run_test(9, 0, 1e-40, 1e40, 1e80, no_root, one_root);
 
-    Output(nRoots, x1, x2);
+    output(num_of_roots, root1, root2);
     return 0;
 }
 
-int SolveSquare(double coeff_a, double coeff_b, double coeff_c, double* x1, double* x2) {
-    double discriminant = NAN, close_to_zero = 1e-6;
+bool compare(double num1, double num2) {
+    double close_to_zero = 1e-6;
+    if (fabs(num1 - num2) < close_to_zero) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+int solve_square(double coeff_a, double coeff_b, double coeff_c, double* root1, double* root2) {
+    double discriminant = NAN;
     discriminant = coeff_b*coeff_b - 4 * coeff_a * coeff_c;
 
-    if (fabs(coeff_a) < close_to_zero &&
-        fabs(coeff_b) < close_to_zero &&
-        fabs(coeff_c) < close_to_zero)
+    if (compare(coeff_a, 0) &&
+        compare(coeff_b, 0) &&
+        compare(coeff_c, 0))
     {
-        *x1 = -1;
-        *x2 = -1;
-        return InfRoots;
+        *root1 = -1;
+        *root2 = -1;
+        return inf_roots;
     }
-    else if ((fabs(coeff_a) < close_to_zero && fabs(coeff_b) < close_to_zero) || discriminant < 0) {
-        *x1 = NoRoot;
-        *x2 = NoRoot;
-        return NoRoots;
+    else if ((compare(coeff_a, 0) && compare(coeff_b, 0)) || discriminant < 0) {
+        *root1 = no_root;
+        *root2 = no_root;
+        return no_roots;
     }
-    else if (fabs(coeff_a) < close_to_zero) {
-        *x1 = -coeff_c/coeff_b;
-        *x2 = NoRoot;
-        return OneRoot;
+    else if (compare(coeff_a, 0)) {
+        *root1 = -coeff_c/coeff_b;
+        *root2 = no_root;
+        return one_root;
         }
     else {
-        if (discriminant < close_to_zero) {
-            *x1 = -coeff_b/(2*coeff_a);
-            *x2 = NoRoot;
-            return OneRoot;
+        if (compare(discriminant, 0)) {
+            *root1 = -coeff_b/(2*coeff_a);
+            *root2 = no_root;
+            return one_root;
         }
         else {
-            *x1 = (-coeff_b - sqrt(discriminant))/(2*coeff_a);
-            *x2 = (-coeff_b + sqrt(discriminant))/(2*coeff_a);
-            return TwoRoots;
+            *root1 = (-coeff_b - sqrt(discriminant))/(2*coeff_a);
+            *root2 = (-coeff_b + sqrt(discriminant))/(2*coeff_a);
+            return two_roots;
         }
     }
 }
@@ -80,35 +91,35 @@ void input(double* a, double* b, double* c) {
     }
 }
 
-bool RunTest(const int TestNum, const double a, const double b, const double c,
-             const double x1Pending, const double x2Pending, const int nRootsPending) {
-    double x1 = 0, x2 = 0;
-    const int nRoots = SolveSquare(a, b, c, &x1, &x2);
+bool run_test(const int test_num, const double a, const double b, const double c,
+             const double root1_pending, const double root2_pending, const int num_of_rootsPending) {
+    double root1 = 0, root2 = 0;
+    const int num_of_roots = solve_square(a, b, c, &root1, &root2);
 
-    if (nRoots != nRootsPending || x1 != x1Pending || x2 != x2Pending) {
+    if (num_of_roots != num_of_rootsPending || !compare(root1, root1_pending) || !compare(root2, root2_pending)) {
         printf("Error Test %d; coeff_a = %lf, coeff_b = %lf, coeff_c = %lf"
-               " x1 = %lf, x2 = %lf, nRoots = %d\n"
-               "Pending nRoots x1 = %lf, x2 = %lf, nRoots = %d\n",
-                TestNum, a, b, c, x1, x2, nRoots, x1Pending, x2Pending, nRootsPending);
+               " root1 = %lf, root2 = %lf, num_of_roots = %d\n"
+               "Pending num_of_roots root1 = %lf, root2 = %lf, num_of_roots = %d\n",
+                test_num, a, b, c, root1, root2, num_of_roots, root1_pending, root2_pending, num_of_rootsPending);
         return false;
     } else {
         return true;
     }
 }
 
-void Output(int nRoots, double x1, double x2) {
-    switch(nRoots) {
-        case NoRoots:
+void output(int num_of_roots, double root1, double root2) {
+    switch(num_of_roots) {
+        case no_roots:
             printf("No Roots\n");
             break;
-        case InfRoots:
+        case inf_roots:
             printf("Infinity of roots\n");
             break;
-        case OneRoot:
-            printf("%d %lf\n", nRoots, x1);
+        case one_root:
+            printf("%d %lf\n", num_of_roots, root1);
             break;
-        case TwoRoots:
-            printf("%d %lf %lf\n", nRoots, x1, x2);
+        case two_roots:
+            printf("%d %lf %lf\n", num_of_roots, root1, root2);
             break;
         default:
             printf("ERROR\n");
@@ -130,7 +141,7 @@ void Output(int nRoots, double x1, double x2) {
 2) буквенный ввод
 3)
 ДЗ
-функция сравнения
+'функция сравнения'
 Выбрать кодстайл
 что-то новое название переменной, кодстайл, конст не коснт
 структуры

@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <math.h>
-
-int solve_square(double coeff_a, double coeff_b, double coeff_c, double* root1, double* root2);
+#include <stdlib.h>
+int solve_square(const double coeff_a, const double coeff_b, const double coeff_c, double* root1, double* root2);
 void input(double* a, double* b, double* c);
-void output(int num_of_roots, double root1, double root2);
-bool run_test(int test, double a, double b, double c, double root1_pending, double root2_pending, int num_of_rootsPending);
-bool compare(double num1, double num2);
+void output(const int num_of_roots, const double root1, const double root2);
+bool run_test(const int test, const double a, const double b, const double c, const double root1_pending,
+              const double root2_pending, const int num_of_rootsPending);
+bool compare(const double num1, const double num2);
 
 enum num_roots {
     no_roots = 0,
@@ -15,11 +16,26 @@ enum num_roots {
     inf_roots = -1
 };
 
+typedef struct coefficients {
+    double coeff_a, coeff_b, coeff_c;
+} coe;
+
+typedef struct roots {
+    double root1, root2;
+} roo;
+
 
 int main() {
-    double coeff_a = NAN, coeff_b = NAN, coeff_c = NAN, root1 = NAN, root2 = NAN;
-    input(&coeff_a, &coeff_b, &coeff_c);
-    int num_of_roots = solve_square(coeff_a, coeff_b, coeff_c, &root1, &root2);
+    coe coeffs;
+    roo* roots = (roo*) malloc (sizeof(double) * 2);
+    coeffs.coeff_a = NAN;
+    coeffs.coeff_b = NAN;
+    coeffs.coeff_c = NAN;
+    roots->root1 = NAN;
+    roots->root2 = NAN;
+
+    input(&coeffs.coeff_a, &coeffs.coeff_b, &coeffs.coeff_c);
+    int num_of_roots = solve_square(coeffs.coeff_a, coeffs.coeff_b, coeffs.coeff_c, &roots->root1, &roots->root2);
 
     run_test(1, 0, 0, 0, inf_roots, inf_roots, inf_roots);
     run_test(2, 1, 2, 1, -1, no_root, one_root);
@@ -31,12 +47,12 @@ int main() {
     run_test(8, 1e100, 1, 1, no_root, no_root, no_roots);
     run_test(9, 0, 1e-40, 1e40, 1e80, no_root, one_root);
 
-    output(num_of_roots, root1, root2);
+    output(num_of_roots, roots->root1, roots->root2);
     return 0;
 }
 
-bool compare(double num1, double num2) {
-    double close_to_zero = 1e-6;
+bool compare(const double num1, const double num2) {
+    const double close_to_zero = 1e-6;
     if (fabs(num1 - num2) < close_to_zero) {
         return true;
     }
@@ -45,7 +61,8 @@ bool compare(double num1, double num2) {
     }
 }
 
-int solve_square(double coeff_a, double coeff_b, double coeff_c, double* root1, double* root2) {
+int solve_square(const double coeff_a, const double coeff_b, const double coeff_c,
+                 double* root1, double* root2) {
     double discriminant = NAN;
     discriminant = coeff_b*coeff_b - 4 * coeff_a * coeff_c;
 
@@ -100,14 +117,15 @@ bool run_test(const int test_num, const double a, const double b, const double c
         printf("Error Test %d; coeff_a = %lf, coeff_b = %lf, coeff_c = %lf"
                " root1 = %lf, root2 = %lf, num_of_roots = %d\n"
                "Pending num_of_roots root1 = %lf, root2 = %lf, num_of_roots = %d\n",
-                test_num, a, b, c, root1, root2, num_of_roots, root1_pending, root2_pending, num_of_rootsPending);
+                test_num, a, b, c, root1, root2, num_of_roots,
+                root1_pending, root2_pending, num_of_rootsPending);
         return false;
     } else {
         return true;
     }
 }
 
-void output(int num_of_roots, double root1, double root2) {
+void output(const int num_of_roots, const double root1, const double root2) {
     switch(num_of_roots) {
         case no_roots:
             printf("No Roots\n");
@@ -142,7 +160,7 @@ void output(int num_of_roots, double root1, double root2) {
 3)
 ДЗ
 'функция сравнения'
-Выбрать кодстайл
+'Выбрать кодстайл'
 что-то новое название переменной, кодстайл, конст не коснт
 структуры
 */

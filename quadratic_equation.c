@@ -39,54 +39,66 @@ typedef struct test {
 } test_t;
  /*!
     \brief Solves the quadratic equation
-    \param[in] coeffs Structure that includes coefficients and pointer on structure that includes roots
-    \param[out] roots ...
+    \param[in] Coeffs Structure that includes coefficients pointer on structure that includes roots
+    \param[out] Pointer on structure that includes roots.
     \return Number of roots
  */
 num_roots solve_square(const coeffs_t coeffs, roots_t* roots);
 
 /*!
     \brief Accepts input of coefficients
+    \param[in] Void
     \param Pointer on structure that includes coefficients
     \return Void
 */
 void input_quadr_coeffs(coeffs_t* coeffs);
+
 /*!
     \brief Output the roots and their number
-    \param Number of roots and structure, that is including roots
+    \param[in] Number of roots and structure that includes roots
+    \param[out] Void
     \return Void
 */
 void output_quadr_roots(const num_roots num_of_roots, const roots_t roots);
+
 /*!
     \brief Run tests
-    \param Structures, that are including number of test,  coefficients, pending roots
-           and pending number of roots
+    \param[in] Structures that includes number of test,  coefficients, expected roots,
+               expected number of roots and structure that includes roots
+    \param[out] Void
     \return True or False
 */
 bool run_test(test_t test, roots_t roots);
+
 /*!
     \brief Comparing two numbers (equal or not)
-    \param Two numbers and accuracy
+    \param[in] Two numbers and accuracy
+    \param[out]
     \return True or False
 */
 bool compare(const double num1, const double num2, const double accuracy);
+
 /*!
     \brief Starting function run_test for all tests
-    \param Array of structures, that are including number of test,  coefficients, pending roots
+    \param[in] Number of tests and structure that includes roots
+    \param[out] Array of structures that includes number of test,  coefficients, expected roots,
+           expected number of roots
     \return Void
 */
 void start_of_tests(test_t* test, int num_of_tests, roots_t roots);
 
 /*!
     \brief Clears stdin
-    \param Void
+    \param[in] Void
+    \param[out] Void
     \return Void
 */
 void clear_stdin();
 
 /*!
     \brief Initialize tests
-    \param Structure of tests
+    \param[in] Structure of tests
+    \param[out] Void
     \return Void
 */
 void init_tests(test_t tests);
@@ -261,9 +273,9 @@ void output_quadr_roots(const num_roots num_of_roots, const roots_t roots) {
 ДЗ
 1) clear stdin!!!
 2) init tests!!!
-3) argc argv env (kerni)
+3) argc argv env (kerni)!!!
 4) ascii color codes
-5) if a == 0  отдельная функия для линейного уравнения
+5) if a == 0  отдельная функия для линейного уравнения (на лекции деда)
 6) options g++ warning, etc.
 */
 

@@ -10,6 +10,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
+#define RED "\x1B[31m"
+#define WHITE "\x1B[37m"
 
 const double ACCURACY = 1e-6;
 
@@ -95,15 +97,22 @@ void start_of_tests(test_t* test, int num_of_tests, roots_t roots);
 */
 void clear_stdin();
 
-/*!
-    \brief Initialize tests
-    \param[in] Structure of tests
-    \param[out] Void
-    \return Void
-*/
-void init_tests(test_t tests);
+test_t tests[] = {
+        {1, 0, 0, 0, INF_ROOTS, INF_ROOTS, INF_ROOTS},
+        {2, 1, 2, 1, -1, NO_ROOTS, ONE_ROOT},
+        {3, 2, 4, 2, -1, NO_ROOTS, ONE_ROOT},
+        {4, 0, 0, 1, NO_ROOTS, NO_ROOTS, NO_ROOTS},
+        {5, 1, 0, 0, 0, NO_ROOTS, ONE_ROOT},
+        {6, 0, 1, 0, 0, NO_ROOTS, ONE_ROOT},
+        {7, 0, 1, 1, -1, NO_ROOTS, ONE_ROOT},
+        {8, 1e100, 1, 1, NO_ROOTS, NO_ROOTS, NO_ROOTS},
+        {9, 0, 1e-40, 1e40, -1e80, NO_ROOTS, ONE_ROOT}
+};
 
+#define color "\033[0;31m"
 int main() {
+    fprintf(stderr, RED "Unreachable\n" WHITE);
+    printf("Hello! Please enter your coefficients for quadratic equation:\n");
     coeffs_t coeffs;
     roots_t roots;
 
@@ -115,8 +124,6 @@ int main() {
 
     input_quadr_coeffs(&coeffs);
     num_roots num_of_roots = solve_square(coeffs, &roots);
-    test_t* tests;
-    init(tests);
 
     int num_of_tests = sizeof(tests)/sizeof(tests[0]);
 
@@ -125,20 +132,6 @@ int main() {
     output_quadr_roots(num_of_roots, roots);
     return 0;
 }
-
-void init_tests(test_t* tests) {
-    tests = {
-        {1, 0, 0, 0, INF_ROOTS, INF_ROOTS, INF_ROOTS},
-        {2, 1, 2, 1, -1, NO_ROOTS, ONE_ROOT},
-        {3, 2, 4, 2, -1, NO_ROOTS, ONE_ROOT},
-        {4, 0, 0, 1, NO_ROOTS, NO_ROOTS, NO_ROOTS},
-        {5, 1, 0, 0, 0, NO_ROOTS, ONE_ROOT},
-        {6, 0, 1, 0, 0, NO_ROOTS, ONE_ROOT},
-        {7, 0, 1, 1, -1, NO_ROOTS, ONE_ROOT},
-        {8, 1e100, 1, 1, NO_ROOTS, NO_ROOTS, NO_ROOTS},
-        {9, 0, 1e-40, 1e40, -1e80, NO_ROOTS, ONE_ROOT}
-    };
-
 
 void start_of_tests(test_t* test, int num_of_tests, roots_t roots) {
     assert(test != 0);
@@ -200,12 +193,13 @@ void input_quadr_coeffs(coeffs_t* coeffs) {
     assert(coeffs != 0);
     while (scanf("%lf %lf %lf", &coeffs->coeff_a, &coeffs->coeff_b, &coeffs->coeff_c) != 3) {
         clear_stdin();
-        printf("enter other coefficients\n");
+        printf("Please enter other coefficients\n");
     }
 }
 
 bool run_test(test_t test, roots_t roots) {
     const num_roots num_of_roots = solve_square(test.coeffs, &roots);
+
 
     if (num_of_roots != test.n_roots_pending || !compare(roots.root1, test.root1_pending, ACCURACY)
         || !compare(roots.root2, test.root2_pending, ACCURACY)) {
@@ -235,7 +229,7 @@ void output_quadr_roots(const num_roots num_of_roots, const roots_t roots) {
             printf("%d %lf %lf\n", num_of_roots, roots.root1, roots.root2);
             break;
         default:
-            fprintf(stderr, "Unreachable\n");
+            fprintf(stderr, RED "Unreachable\n" WHITE);
             assert(false);
     }
 }

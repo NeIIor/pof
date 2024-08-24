@@ -4,21 +4,22 @@
 #include <assert.h>
 #include <sys/stat.h>
 
-
-#define PRINT_RED(...) { printf(RED, __VA_ARGS__); }
-#define PRINT_WHITE(...) { printf(WHITE, __VA_ARGS__); }
-#define PRINT_GREEN(...) { printf(GREEN, __VA_ARGS__); }
 #define RED "\x1B[31m"
 #define WHITE "\x1B[37m"
 #define GREEN "\x1B[32m"
+#define PRINT_RED(s, ...) printf(RED s WHITE, ##__VA_ARGS__)
+#define PRINT_GREEN(s, ...) printf(GREEN s WHITE,   ##__VA_ARGS__)
+
+
 
 /// accuracy for equal numbers
 const double ACCURACY = 1e-6;
 
 /// enum for any solutions of quadratic equation
 enum num_roots {
-    NO_ROOTS = 0, ///< enum for no roots
-    ONE_ROOT = 1, ///< enum for one root
+    INVALID = -2,
+    NO_ROOTS = 0, ///<  enum for no roots
+    ONE_ROOT = 1, ///<  enum for one root
     TWO_ROOTS = 2, ///< enum for two roots
     INF_ROOTS = -1 ///< enum for inf roots
 };
@@ -32,77 +33,76 @@ typedef struct coefficients {
 
 /// just roots of ax^2 + bx + c = 0
 typedef struct roots {
-    double root1; ///< root1 of quadratic equation
-    double root2; ///< root2 of quadratic equation
+    double root1; ///<           root1 of quadratic equation
+    double root2; ///<           root2 of quadratic equation
+    num_roots num_of_roots; ///< number of roots
 } roots_t;
 
 /// just parameters for tests
 typedef struct test {
-    coeffs_t coeffs; ///< coefficients of quadratic equation
-    roots_t roots_expected; ///< structure right roods of quadratic equation
-    int n_roots_expected; ///< right number of roots
+    coeffs_t coeffs; ///<        coefficients of quadratic equation
+    roots_t roots_expected; ///< structure with right roots and number of roots of quadratic equation
 } test_t;
 
  /*!
-    \brief solves the quadratic equation
-    \param[in] coeffs structure that includes coefficients pointer on structure that includes roots
+    \brief      solves the quadratic equation
+    \param[in]  coeffs structure that includes coefficients
     \param[out] roots  pointer on structure that includes roots.
-    \return number of roots
+    \return     number of roots
  */
-int solve_square(const coeffs_t coeffs, roots_t* roots);
+num_roots solve_square(const coeffs_t coeffs, roots_t* roots);
 
 /*!
-    \brief accepts only one input of coefficients
-    \param[out] coeffs pointer on structure that includes coefficients
-    \return one if input is wrong, else 0
+    \brief             accepts only one input of coefficients
+    \param[out]        coeffs pointer on structure that includes coefficients
+    \return            one if input is wrong, else zero
 */
 int input_quadr_coeffs(coeffs_t* coeffs);
 
 /*!
-    \brief Output the roots and their number
-    \param[in] num_of_roots number of roots
-               roots structure that includes roots
-    \return Void
+    \brief     output the roots and their number
+    \param[in] roots structure that includes roots
+    \return    void
 */
-void output_quadr_roots(const int num_of_roots, roots_t roots);
+void output_quadr_roots(const roots_t roots);
 
 /*!
-    \brief Run tests
-    \param[in] test structure that includes number of test,  coefficients, expected roots,
-               expected number of roots
-               roots structure that includes roots
-    \return True or False
+    \brief      run tests
+    \param[in]  test structure that includes number of test,  coefficients, expected roots,
+                expected number of roots
+    \param[out] roots pointer on structure that includes roots
+    \return     1 if true, else 0 if false
 */
-int run_test(const test_t test, double root1, double root2, int* num_of_roots);
+int run_test(const test_t test, roots_t* roots);
 
 /*!
-    \brief Comparing two numbers (equal or not)
+    \brief     comparing two numbers (equal or not)
     \param[in] num1 the first number
                num2 the second number
-               accuracy fallibility for equal numbers
-    \return True or False
+               fallibility for equal numbers
+    \return    true or false
 */
 bool compare(const double num1, const double num2, const double accuracy);
 
 /*!
-    \brief Starting function run_test for all tests
-    \param[in] num_of_tests number of tests and structure that includes roots
+    \brief      starting function run_test for all tests
+    \param[in]  num_of_tests number of tests
     \param[out] test array of structures that includes number of test,  coefficients, expected roots,
                 expected number of roots
-    \return Void
+    \return     void
 */
-void start_of_tests(test_t* test, const int num_of_tests);
+void start_of_tests(test_t* test, const size_t num_of_tests);
 
 /*!
-    \brief Clears stdin
-    \return Void
+    \brief  clears stdin
+    \return void
 */
 void clear_stdin();
 
 /*!
-\brief accepts coefficients of quadratic equal until they are right
-\param coeffs pointer on structure that includes coefficients
-\return Void
+    \brief      accepts coefficients of quadratic equal until they are right
+    \param[out] coeffs pointer on structure that includes coefficients
+    \return     void
 */
 void total_input_quadr_coeffs(coeffs_t* coeffs);
 
@@ -129,38 +129,41 @@ int main() {
     roots.root1 = NAN;
     roots.root2 = NAN;
 
-    struct stat stbuf;
-    stat(tests, &stbuf);
-    size_of_file = stat.st_size
+    /*struct stat stbuf;
+    int stat("tests", &stbuf);
+    const size_t size_of_file = stat.st_size*/
 
-    int num_of_tests = 9;
+    const size_t num_of_tests = 9;
 
 
     total_input_quadr_coeffs(&coeffs);
-    int num_of_roots = solve_square(coeffs, &roots);
+    roots.num_of_roots = solve_square(coeffs, &roots);
 
     start_of_tests(tests, num_of_tests);
 
-    output_quadr_roots(num_of_roots, roots);
+    output_quadr_roots(roots);
 
     return 0;
 }
 
-void start_of_tests(test_t* test, const int num_of_tests) {
+void start_of_tests(test_t* test, const size_t num_of_tests) {
     assert(test != 0);
-    double root1 = 0, root2 = 0;
-    int* num_of_roots;
-    for (int i = 0; i < num_of_tests; i++) {
-        if (run_test(test[i], root1, root2, num_of_roots) == 1) {
-            PRINT_GREEN("Test %d is True", i + 1);
+    roots_t roots = {
+        NAN,
+        NAN,
+        INVALID
+    };
+    for (size_t i = 0; i < num_of_tests; i++) {
+        if (run_test(test[i], &roots) == 1) {
+            PRINT_GREEN("Test %d is True\n", i + 1);
         } else {
             PRINT_RED("Error Test %d; coeff_a = %lf, coeff_b = %lf, coeff_c = %lf "
                       "root1 = %lf, root2 = %lf, num_of_roots = %d\n"
                       "Expected num_of_roots root1 = %lf, root2 = %lf, num_of_roots = %d\n",
                       i + 1, test[i].coeffs.coeff_a, test[i].coeffs.coeff_b, test[i].coeffs.coeff_c,
-                      root1, root2, num_of_roots,test[i].roots_expected.root1,
-                      test[i].roots_expected.root2, test[i].n_roots_expected);
-            PRINT_WHITE();
+                      roots.root1, roots.root2, roots.num_of_roots,
+                      test[i].roots_expected.root1,
+                      test[i].roots_expected.root2, test[i].roots_expected.num_of_roots);
         }
     }
 }
@@ -169,40 +172,39 @@ bool compare(const double num1, const double num2, const double accuracy) {
     return fabs(num1 - num2) <= accuracy;
 }
 
-int solve_square(const coeffs_t coeffs, double* root1, double* root2) {
-    assert(root1 != 0);
-    assert(root2 != 0);
-    double discriminant = NAN;
-    discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
+num_roots solve_square(const coeffs_t coeffs, roots_t* roots) {
+    assert(&roots->root1 != 0);
+    assert(&roots->root2 != 0);
+    const double discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
 
     if (compare(coeffs.coeff_a, 0, ACCURACY) &&
         compare(coeffs.coeff_b, 0, ACCURACY) &&
         compare(coeffs.coeff_c, 0, ACCURACY))
     {
-        *root1 = INF_ROOTS;
-        *root2 = INF_ROOTS;
+        roots->root1 = INF_ROOTS;
+        roots->root2 = INF_ROOTS;
         return INF_ROOTS;
     }
     else if ((compare(coeffs.coeff_a, 0, ACCURACY) && compare(coeffs.coeff_b, 0, ACCURACY))
               || discriminant < 0) {
-        *root1 = NO_ROOTS;
-        *root2 = NO_ROOTS;
+        roots->root1 = NO_ROOTS;
+        roots->root2 = NO_ROOTS;
         return NO_ROOTS;
     }
     else if (compare(coeffs.coeff_a, 0, ACCURACY)) {
-        *root1 = -coeffs.coeff_c/coeffs.coeff_b;
-        *root2 = NO_ROOTS;
+        roots->root1 = -coeffs.coeff_c/coeffs.coeff_b;
+        roots->root2 = NO_ROOTS;
         return ONE_ROOT;
         }
     else {
         if (compare(discriminant, 0, ACCURACY)) {
-            *root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
-            *root2 = NO_ROOTS;
+            roots->root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
+            roots->root2 = NO_ROOTS;
             return ONE_ROOT;
         }
         else {
-            *root1 = (-coeffs.coeff_b - sqrt(discriminant))/(2*coeffs.coeff_a);
-            *root2 = (-coeffs.coeff_b + sqrt(discriminant))/(2*coeffs.coeff_a);
+            roots->root1 = (-coeffs.coeff_b - sqrt(discriminant))/(2*coeffs.coeff_a);
+            roots->root2 = (-coeffs.coeff_b + sqrt(discriminant))/(2*coeffs.coeff_a);
             return TWO_ROOTS;
         }
     }
@@ -220,17 +222,14 @@ int input_quadr_coeffs(coeffs_t* coeffs) {
     if (scanf("%lf %lf %lf", &coeffs->coeff_a, &coeffs->coeff_b, &coeffs->coeff_c) != 3) {
         clear_stdin();
         PRINT_RED("Please enter numerical coefficients\n");
-        PRINT_WHITE();
         return 0;
-    } else if (compare(coeffs.coeff_a, 0, ACCURACY) || compare(coeffs.coeff_b, 0, ACCURACY)) ||
-               compare(coeffs.coeff_c, 0, ACCURACY))) {
+    } else if (compare(coeffs->coeff_a, 0, ACCURACY) || compare(coeffs->coeff_b, 0, ACCURACY) ||
+               compare(coeffs->coeff_c, 0, ACCURACY)) {
         PRINT_RED("Your coefficients are too small. Enter other coefficients.\n");
-        PRINT_WHITE();
         return 0;
-    } else if (isfinite(coeffs->coeff_a) || isfinite(coeffs->coeff_b) ||
-               isfinite(coeffs->coeff_c)) {
+    } else if (!isfinite(coeffs->coeff_a) || !isfinite(coeffs->coeff_b) ||
+               !isfinite(coeffs->coeff_c)) {
         PRINT_RED("Your coefficients are too big. Enter other coefficients.\n");
-        PRINT_WHITE();
         return 0;
     } else {
         printf("OK. Let's go.\n");
@@ -242,19 +241,20 @@ void total_input_quadr_coeffs(coeffs_t* coeffs) {
     while(!input_quadr_coeffs(coeffs));
 }
 
-int run_test(const test_t test, double root1, double root2, int* num_of_roots) {
-    *num_of_roots = solve_square(test.coeffs, &root1, &root2);
-    if (num_of_roots != test.n_roots_expected || !compare(root1, test.roots_expected.root1, ACCURACY)
-        || !compare(root2, test.roots_expected.root2, ACCURACY)) {
+int run_test(const test_t test, roots_t* roots) {
+    roots->num_of_roots = solve_square(test.coeffs, roots);
+    if (roots->num_of_roots != test.roots_expected.num_of_roots ||
+       !compare(roots->root1, test.roots_expected.root1, ACCURACY)||
+       !compare(roots->root2, test.roots_expected.root2, ACCURACY)) {
         return 0; //длинный принтф был здесь
     } else {
         return 1;
     }
 }
 
-void output_quadr_roots(const int num_of_roots, const roots_t roots) {
+void output_quadr_roots(const roots_t roots) {
     printf("Thanks, there is your solution: ");
-    switch(num_of_roots) {
+    switch(roots.num_of_roots) {
         case NO_ROOTS:
             printf("no roots\n");
             break;
@@ -262,10 +262,10 @@ void output_quadr_roots(const int num_of_roots, const roots_t roots) {
             printf("infinity of roots\n");
             break;
         case ONE_ROOT:
-            printf("%d root: %lf\n", num_of_roots, roots.root1);
+            printf("%d root: %lf\n", roots.num_of_roots, roots.root1);
             break;
         case TWO_ROOTS:
-            printf("%d roots: %lf and %lf\n", num_of_roots, roots.root1, roots.root2);
+            printf("%d roots: %lf and %lf\n", roots.num_of_roots, roots.root1, roots.root2);
             break;
         default:
             fprintf(stderr, RED "Unreachable\n" WHITE);
@@ -335,9 +335,12 @@ fread
 2) макрос для цвета = страничка в яндексе!!!
 3) прочитать про нахождения размеров файла, выделить память и записать freadом
 
-1) size_t = unsigned long
-2) num_of_roots добавить в стракт roots
-3) передавать указатели на root1 root2
+continue
+4)отдельная f для размера файла ввода тестов
+5)прочитать про cat!!!
+6) поменять документацию!!!
+7) название файла через аргуметы командной строки
+
 
 */
 

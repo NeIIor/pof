@@ -77,6 +77,7 @@ int run_test(const test_t test, roots_t* roots);
 
 /*!
     \brief     comparing two numbers (equal or not)
+
     \param[in] num1 the first number
                num2 the second number
                fallibility for equal numbers
@@ -86,9 +87,10 @@ bool compare(const double num1, const double num2, const double accuracy);
 
 /*!
     \brief      starting function run_test for all tests
+
     \param[in]  num_of_tests number of tests
-    \param[out] test array of structures that includes number of test,  coefficients, expected roots,
-                expected number of roots
+    \param[out] test         array of structures that includes number of test,  coefficients, expected roots,
+                             expected number of roots
     \return     void
 */
 void start_of_tests(test_t* test, const size_t num_of_tests);
@@ -120,7 +122,6 @@ test_t tests[] = {
 
 
 int main() {
-    printf("Hello! Please enter your coefficients for quadratic equation:\n");
     coeffs_t coeffs;
     roots_t roots;
     coeffs.coeff_a = NAN;
@@ -129,9 +130,10 @@ int main() {
     roots.root1 = NAN;
     roots.root2 = NAN;
 
-    /*struct stat stbuf;
-    int stat("tests", &stbuf);
-    const size_t size_of_file = stat.st_size*/
+   /* struct stat stbuf;
+    char test_file_name[] = { 't', 'e', 's', 't', 's', '\0'};
+    stat("tests", &stbuf);
+   // const off_t size_of_file = stat.st_size; // wtf off_t */
 
     const size_t num_of_tests = 9;
 
@@ -176,28 +178,30 @@ num_roots solve_square(const coeffs_t coeffs, roots_t* roots) {
     assert(&roots->root1 != 0);
     assert(&roots->root2 != 0);
     const double discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
+    const bool cmp_d = compare(discriminant, 0, ACCURACY);
+    const bool cmp_coeff_a = compare(coeffs.coeff_a, 0, ACCURACY);
+    const bool cmp_coeff_b = compare(coeffs.coeff_b, 0, ACCURACY);
+    const bool cmp_coeff_c = compare(coeffs.coeff_c, 0, ACCURACY);
 
-    if (compare(coeffs.coeff_a, 0, ACCURACY) &&
-        compare(coeffs.coeff_b, 0, ACCURACY) &&
-        compare(coeffs.coeff_c, 0, ACCURACY))
+    if (cmp_coeff_a && cmp_coeff_b && cmp_coeff_c)
     {
         roots->root1 = INF_ROOTS;
         roots->root2 = INF_ROOTS;
         return INF_ROOTS;
     }
-    else if ((compare(coeffs.coeff_a, 0, ACCURACY) && compare(coeffs.coeff_b, 0, ACCURACY))
+    else if ((cmp_coeff_a && cmp_coeff_b)
               || discriminant < 0) {
         roots->root1 = NO_ROOTS;
         roots->root2 = NO_ROOTS;
         return NO_ROOTS;
     }
-    else if (compare(coeffs.coeff_a, 0, ACCURACY)) {
+    else if (cmp_coeff_a) {
         roots->root1 = -coeffs.coeff_c/coeffs.coeff_b;
         roots->root2 = NO_ROOTS;
         return ONE_ROOT;
         }
     else {
-        if (compare(discriminant, 0, ACCURACY)) {
+        if (cmp_d) {
             roots->root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
             roots->root2 = NO_ROOTS;
             return ONE_ROOT;
@@ -222,19 +226,17 @@ int input_quadr_coeffs(coeffs_t* coeffs) {
     if (scanf("%lf %lf %lf", &coeffs->coeff_a, &coeffs->coeff_b, &coeffs->coeff_c) != 3) {
         clear_stdin();
         PRINT_RED("Please enter numerical coefficients\n");
-        return 0;
     } else if (compare(coeffs->coeff_a, 0, ACCURACY) || compare(coeffs->coeff_b, 0, ACCURACY) ||
                compare(coeffs->coeff_c, 0, ACCURACY)) {
         PRINT_RED("Your coefficients are too small. Enter other coefficients.\n");
-        return 0;
     } else if (!isfinite(coeffs->coeff_a) || !isfinite(coeffs->coeff_b) ||
                !isfinite(coeffs->coeff_c)) {
         PRINT_RED("Your coefficients are too big. Enter other coefficients.\n");
-        return 0;
     } else {
         printf("OK. Let's go.\n");
         return 1;
     }
+    return 0;
 }
 
 void total_input_quadr_coeffs(coeffs_t* coeffs) {
@@ -341,7 +343,12 @@ continue
 6) поменять документацию!!!
 7) название файла через аргуметы командной строки
 
-
+HW
+1) delete lfs in git config --list --global!!!
+2) setting cache credentials!!!
+3) input from file
+4) 5 7 8 chapters in kerni application A and b1.1-b1.8
+5) linear equation (a == 0) -> (b == 0) empty equation
 */
 
 

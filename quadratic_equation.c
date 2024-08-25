@@ -18,7 +18,7 @@ const double ACCURACY = 1e-6;
 /// enum for any solutions of quadratic equation
 enum num_roots {
     INVALID = -2,
-    NO_ROOTS = 0, ///<  enum for no roots
+    NO_ROOTS = -3, ///<  enum for no roots
     ONE_ROOT = 1, ///<  enum for one root
     TWO_ROOTS = 2, ///< enum for two roots
     INF_ROOTS = -1 ///< enum for inf roots
@@ -44,13 +44,16 @@ typedef struct test {
     roots_t roots_expected; ///< structure with right roots and number of roots of quadratic equation
 } test_t;
 
+
+num_roots linear_equation(coeffs_t coeffs, roots_t* roots);
+
  /*!
     \brief      solves the quadratic equation
     \param[in]  coeffs structure that includes coefficients
     \param[out] roots  pointer on structure that includes roots.
     \return     number of roots
  */
-num_roots solve_square(const coeffs_t coeffs, roots_t* roots);
+num_roots solve_square(coeffs_t coeffs, roots_t* roots);
 
 /*!
     \brief             accepts only one input of coefficients
@@ -122,6 +125,7 @@ test_t tests[] = {
 
 
 int main() {
+    printf("Hello! Enter your coefficients for quadratic equation.\n");
     coeffs_t coeffs;
     roots_t roots;
     coeffs.coeff_a = NAN;
@@ -174,15 +178,55 @@ bool compare(const double num1, const double num2, const double accuracy) {
     return fabs(num1 - num2) <= accuracy;
 }
 
-num_roots solve_square(const coeffs_t coeffs, roots_t* roots) {
-    assert(&roots->root1 != 0);
-    assert(&roots->root2 != 0);
-    const double discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
-    const bool cmp_d = compare(discriminant, 0, ACCURACY);
-    const bool cmp_coeff_a = compare(coeffs.coeff_a, 0, ACCURACY);
+num_roots linear_equation(coeffs_t coeffs, roots_t* roots) {
     const bool cmp_coeff_b = compare(coeffs.coeff_b, 0, ACCURACY);
     const bool cmp_coeff_c = compare(coeffs.coeff_c, 0, ACCURACY);
+    if (cmp_coeff_b) {
+        if (cmp_coeff_c) {
+            roots->root1 = INF_ROOTS;
+            roots->root2 = INF_ROOTS;
+            return INF_ROOTS;
+        } else {
+            roots->root1 = NO_ROOTS;
+            roots->root2 = NO_ROOTS;
+            return NO_ROOTS;
+        }
+    } else {
+        roots->root1 = -coeffs.coeff_c/coeffs.coeff_b;
+        roots->root2 = NO_ROOTS;
+        return ONE_ROOT;
+    }
+}
 
+
+num_roots solve_square(coeffs_t coeffs, roots_t* roots) {
+    assert(&roots->root1 != 0);
+    assert(&roots->root2 != 0);
+    double discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
+    while (!isfinite(discriminant)) {
+        PRINT_RED("Discriminant is too big. Please enter other coefficients.\n");
+        total_input_quadr_coeffs(&coeffs);
+        discriminant = coeffs.coeff_b*coeffs.coeff_b - 4 * coeffs.coeff_a * coeffs.coeff_c;
+    }
+    const bool cmp_d = compare(discriminant, 0, ACCURACY);
+    const bool cmp_coeff_a = compare(coeffs.coeff_a, 0, ACCURACY);
+
+    if (cmp_coeff_a) {
+        return linear_equation(coeffs, roots);
+    } else if (cmp_d) {
+        roots->root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
+        roots->root2 = NO_ROOTS;
+        return ONE_ROOT;
+    } else if (discriminant < 0) {
+        roots->root1 = NO_ROOTS;
+        roots->root2 = NO_ROOTS;
+        return NO_ROOTS;
+    } else {
+        roots->root1 = (-coeffs.coeff_b - sqrt(discriminant))/(2*coeffs.coeff_a);
+        roots->root2 = (-coeffs.coeff_b + sqrt(discriminant))/(2*coeffs.coeff_a);
+        return TWO_ROOTS;
+    }
+    /*
     if (cmp_coeff_a && cmp_coeff_b && cmp_coeff_c)
     {
         roots->root1 = INF_ROOTS;
@@ -200,18 +244,16 @@ num_roots solve_square(const coeffs_t coeffs, roots_t* roots) {
         roots->root2 = NO_ROOTS;
         return ONE_ROOT;
         }
+    else if (cmp_d) {
+        roots->root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
+        roots->root2 = NO_ROOTS;
+        return ONE_ROOT;
+        }
     else {
-        if (cmp_d) {
-            roots->root1 = -coeffs.coeff_b/(2*coeffs.coeff_a);
-            roots->root2 = NO_ROOTS;
-            return ONE_ROOT;
-        }
-        else {
-            roots->root1 = (-coeffs.coeff_b - sqrt(discriminant))/(2*coeffs.coeff_a);
-            roots->root2 = (-coeffs.coeff_b + sqrt(discriminant))/(2*coeffs.coeff_a);
-            return TWO_ROOTS;
-        }
-    }
+        roots->root1 = (-coeffs.coeff_b - sqrt(discriminant))/(2*coeffs.coeff_a);
+        roots->root2 = (-coeffs.coeff_b + sqrt(discriminant))/(2*coeffs.coeff_a);
+        return TWO_ROOTS;
+    } */
 }
 
 void clear_stdin(){
@@ -226,14 +268,10 @@ int input_quadr_coeffs(coeffs_t* coeffs) {
     if (scanf("%lf %lf %lf", &coeffs->coeff_a, &coeffs->coeff_b, &coeffs->coeff_c) != 3) {
         clear_stdin();
         PRINT_RED("Please enter numerical coefficients\n");
-    } else if (compare(coeffs->coeff_a, 0, ACCURACY) || compare(coeffs->coeff_b, 0, ACCURACY) ||
-               compare(coeffs->coeff_c, 0, ACCURACY)) {
-        PRINT_RED("Your coefficients are too small. Enter other coefficients.\n");
     } else if (!isfinite(coeffs->coeff_a) || !isfinite(coeffs->coeff_b) ||
                !isfinite(coeffs->coeff_c)) {
         PRINT_RED("Your coefficients are too big. Enter other coefficients.\n");
     } else {
-        printf("OK. Let's go.\n");
         return 1;
     }
     return 0;
@@ -348,7 +386,7 @@ HW
 2) setting cache credentials!!!
 3) input from file
 4) 5 7 8 chapters in kerni application A and b1.1-b1.8
-5) linear equation (a == 0) -> (b == 0) empty equation
+5) linear equation (a == 0) -> (b == 0) empty equation !!!
 */
 
 
